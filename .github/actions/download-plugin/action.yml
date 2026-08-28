@@ -1,0 +1,31 @@
+name: 'Download Security Plugin'
+description: 'Installs OpenSearch Dashboard with a Plugin from github, then checkouts the correct dashboards version for the plugin, configures npm/yarn, and bootstraps Dashboards'
+
+inputs:
+  opensearch-version:
+    description: 'The version of OpenSearch that should be used, e.g "2.6.0"'
+    required: true
+
+  plugin-name:
+    description: 'The the name of the plugin to use, such as opensearch-security'
+    required: true
+
+  plugin-version:
+    description: 'The version of security plugin that should be used, e.g "2.6.0.0"'
+    required: true
+
+  download-location:
+    description: 'The location of where to download the plugin'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        mvn dependency:get \
+        -DremoteRepositories=https://ci.opensearch.org/ci/dbc/snapshots/maven/ \
+        -Dartifact=org.opensearch.plugin:${{ inputs.plugin-name }}:${{ inputs.plugin-version }}-SNAPSHOT:zip \
+        -Dtransitive=false
+        cp ~/.m2/repository/org/opensearch/plugin/${{ inputs.plugin-name }}/${{ inputs.plugin-version }}-SNAPSHOT/${{ inputs.plugin-name }}-${{ inputs.plugin-version }}-SNAPSHOT.zip ${{ inputs.download-location }}.zip
+      shell: bash
+      
